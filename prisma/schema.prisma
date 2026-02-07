@@ -1,0 +1,232 @@
+// Prisma schema pro ALUPOL Kalkulátor zastřešení
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTENTIZACE ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?   // Pro credentials auth
+  role          UserRole  @default(DEALER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  quotes        Quote[]
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum UserRole {
+  ADMIN
+  DEALER
+}
+
+// ==================== PRODUKTY ====================
+
+model RoofType {
+  id          String   @id @default(cuid())
+  code        String   @unique  // HORIZONT, PRACTIC, etc.
+  name        String             // Zobrazovaný název
+  maxWidth    Int                // Maximální šířka v mm
+  minWidth    Int      @default(2000)
+  hasSkirts   Boolean  @default(false) // Má šikminy
+  minModules  Int      @default(2)
+  maxModules  Int      @default(7)
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  image       String?            // Cesta k obrázku
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  prices      Price[]
+  quotes      Quote[]
+}
+
+model Price {
+  id          String   @id @default(cuid())
+  roofTypeId  String
+  roofType    RoofType @relation(fields: [roofTypeId], references: [id], onDelete: Cascade)
+
+  widthLabel  String             // "do 3 m", "do 3,25 m", etc.
+  widthMin    Int                // Min šířka v mm
+  widthMax    Int                // Max šířka v mm
+  modules     Int                // Počet modulů (2-7)
+  price       Int                // Cena v CZK
+  height      Float              // Standardní výška v metrech
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([roofTypeId, widthMax, modules])
+  @@index([roofTypeId])
+}
+
+// ==================== PŘÍPLATKY ====================
+
+model Surcharge {
+  id          String        @id @default(cuid())
+  code        String        @unique  // doors_single_small, rail_walking, etc.
+  name        String                 // Zobrazovaný název
+  category    SurchargeCategory
+  type        SurchargeType          // FIXED nebo PERCENT
+  value       Float                  // Hodnota (Kč nebo %)
+  valueRock   Float?                 // Speciální hodnota pro ROCK
+  minValue    Float?                 // Minimální hodnota (pro procenta)
+  description String?
+  sortOrder   Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum SurchargeCategory {
+  DOORS        // Dveře a klapky
+  RAILS        // Koleje
+  SURFACE      // Povrchová úprava
+  POLYCARBONATE // Polykarbonát
+  CONSTRUCTION // Konstrukce
+  INSTALLATION // Montáž
+  OTHER        // Ostatní
+}
+
+enum SurchargeType {
+  FIXED    // Fixní částka v Kč
+  PERCENT  // Procento z ceny
+}
+
+// ==================== NABÍDKY ====================
+
+model Quote {
+  id          String      @id @default(cuid())
+  number      String      @unique  // ALU-2024-0001
+  status      QuoteStatus @default(DRAFT)
+
+  // Zákazník
+  customerName     String
+  customerEmail    String?
+  customerPhone    String?
+  customerAddress  String?
+
+  // Odběratel (dealer)
+  dealerName       String?
+  dealerContact    String?
+
+  // Zastřešení
+  roofTypeId       String
+  roofType         RoofType @relation(fields: [roofTypeId], references: [id])
+
+  // Rozměry
+  width            Int      // Šířka v mm
+  modules          Int      // Počet modulů
+  length           Int?     // Vlastní délka v mm (null = standardní)
+  height           Int?     // Vlastní výška v mm (null = standardní)
+  standardLength   Int      // Standardní délka
+  standardHeight   Int      // Standardní výška
+
+  // Kompletní konfigurace jako JSON
+  configuration    Json
+
+  // Ceny
+  basePrice        Int      // Základní cena
+  surchargesTotal  Int      // Součet příplatků
+  transportPrice   Int      // Doprava
+  transportKm      Int?     // Vzdálenost v km
+  transportRate    Float?   // Sazba za km
+  installPrice     Int      // Montáž
+  installType      String?  // CZ, EU, OWN, FREE
+  discountPercent  Float?   // Sleva v %
+  discountAmount   Int?     // Sleva v Kč
+  finalPrice       Int      // Konečná cena
+
+  // Metadata
+  validUntil       DateTime
+  notes            String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Vztahy
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  items            QuoteItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model QuoteItem {
+  id          String   @id @default(cuid())
+  quoteId     String
+  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  name        String   // Název položky
+  description String?  // Popis
+  quantity    Int?     // Množství
+  unit        String?  // Jednotka (ks, mm, m, %)
+  price       Int      // Cena
+  sortOrder   Int      @default(0)
+
+  @@index([quoteId])
+}
+
+enum QuoteStatus {
+  DRAFT      // Rozpracovaná
+  SENT       // Odeslaná
+  ACCEPTED   // Přijatá
+  REJECTED   // Odmítnutá
+  EXPIRED    // Prošlá
+}
+
+// ==================== NASTAVENÍ ====================
+
+model Settings {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  updatedAt   DateTime @updatedAt
+}

@@ -1,65 +1,186 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import Link from 'next/link'
+import Image from 'next/image'
+import { Calculator, FileText, Settings, ArrowRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+const roofTypes = [
+  { code: 'horizont', name: 'Horizont' },
+  { code: 'practic', name: 'Practic' },
+  { code: 'harmony', name: 'Harmony' },
+  { code: 'dream', name: 'Dream' },
+  { code: 'star', name: 'Star' },
+  { code: 'rock', name: 'Rock' },
+]
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="bg-white border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">A</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900">ALUPOL</span>
+          </div>
+          <nav className="flex items-center gap-4">
+            <Link href="/calculator" className="text-gray-600 hover:text-gray-900">
+              Kalkulátor
+            </Link>
+            <Link href="/quotes" className="text-gray-600 hover:text-gray-900">
+              Nabídky
+            </Link>
+            <Link href="/admin" className="text-gray-600 hover:text-gray-900">
+              Admin
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              Kalkulátor zastřešení bazénů a teras
+            </h1>
+            <p className="text-xl text-blue-100 mb-8">
+              Profesionální nástroj pro rychlý výpočet ceny zastřešení.
+              11 typů zastřešení, všechny příplatky a doplňky, PDF nabídky.
+            </p>
+            <Link href="/calculator">
+              <Button size="lg" variant="secondary" className="gap-2">
+                Spustit kalkulátor
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-12">
+            Funkce aplikace
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card>
+              <CardHeader>
+                <Calculator className="w-10 h-10 text-blue-600 mb-2" />
+                <CardTitle>Přesná kalkulace</CardTitle>
+                <CardDescription>
+                  Automatický výpočet ceny na základě aktuálních ceníků a příplatků
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li>• 11 typů zastřešení</li>
+                  <li>• Všechny rozměry a moduly</li>
+                  <li>• Automatické příplatky</li>
+                  <li>• Doprava a montáž</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <FileText className="w-10 h-10 text-blue-600 mb-2" />
+                <CardTitle>PDF nabídky</CardTitle>
+                <CardDescription>
+                  Profesionální PDF dokumenty připravené k odeslání zákazníkovi
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li>• Firemní design</li>
+                  <li>• Detailní rozpis položek</li>
+                  <li>• Obrázek zastřešení</li>
+                  <li>• Podmínky a platnost</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Settings className="w-10 h-10 text-blue-600 mb-2" />
+                <CardTitle>Admin správa</CardTitle>
+                <CardDescription>
+                  Snadná aktualizace ceníků a příplatků bez programování
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li>• Správa ceníků</li>
+                  <li>• Editace příplatků</li>
+                  <li>• Historie nabídek</li>
+                  <li>• Uživatelské účty</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Roof Types Preview */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-12">
+            Typy zastřešení
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {roofTypes.map((type) => (
+              <div
+                key={type.code}
+                className="bg-gray-50 rounded-lg p-4 text-center hover:shadow-md transition-shadow"
+              >
+                <div className="aspect-video relative mb-3">
+                  <Image
+                    src={`/images/${type.code}.png`}
+                    alt={type.name}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <span className="font-medium text-gray-900">{type.name}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-gray-500 mt-6">
+            + Terrace, Wave, Flash, Wing, SunSet
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 bg-gray-900 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            Připraveni začít?
+          </h2>
+          <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+            Vytvořte svou první nabídku během několika minut.
+            Kalkulátor je připraven k použití.
+          </p>
+          <Link href="/calculator">
+            <Button size="lg" className="gap-2">
+              Spustit kalkulátor
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          </Link>
         </div>
-      </main>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white border-t py-8">
+        <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
+          <p>&copy; {new Date().getFullYear()} ALUPOL. Všechna práva vyhrazena.</p>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }
